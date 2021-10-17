@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
 using RestSharp;
@@ -14,26 +15,50 @@ namespace sales_lookup
         static void Main(string[] args)
         {
             Console.WriteLine("Getting prices");
+            Console.WriteLine();
 
-            Land[,] world = new Land[25, 25];
+            World world = new World();
 
-            ProcessWorld(world, 10, 15, 15, 25);
+            // center piece + radius
+            int centerX = 16;
+            int centerY = 14;
+            int radius = 4;
 
-            PrintWorld(world, 10, 15, 15, 25);
+            //int centerX = 12;
+            //int centerY = 20;
+            //int radius = 2;
 
+            var coords = world.GetCoordinates(centerX, centerY);
+
+            ProcessWorld(world.Lands,
+                coords.X - (radius / 2),
+                coords.X + (radius / 2) + 1,
+                coords.Y - (radius / 2),
+                coords.Y + (radius / 2) + 1);
+
+            PrintWorld(world.Lands,
+                coords.X - (radius / 2), 
+                coords.X + (radius / 2) + 1, 
+                coords.Y - (radius / 2), 
+                coords.Y + (radius / 2) + 1);
+
+            Console.WriteLine();
             Console.WriteLine("Done");
             Console.ReadLine();
         }
 
         private static void ProcessWorld(Land[,] world, int startX, int stopX, int startY, int stopY)
         {
+            var lands = new List<Land>();
             for (int y = startY; y < world.GetLength(1) && y < stopY; y++)
             {
                 for (int x = startX; x < world.GetLength(0) && x < stopX; x++)
                 {
-                    world[x, y] = GetLandInfo(x, y);
+                    lands.Add(world[x, y]);
                 }
             }
+
+            //Parallel.ForEach(lands, land => GetLandInfo(land));
         }
 
         private static void PrintWorld(Land[,] world, int startX, int stopX, int startY, int stopY)
@@ -46,30 +71,37 @@ namespace sales_lookup
 
                 for (int x = startX; x < world.GetLength(0) && x < stopX; x++)
                 {
-                    Console.Write($" {x} {y}");                    
+                    Console.Write($" {world[x, y].X} {world[x, y].Y}".PadRight(8));
 
-                    if (world[x, y]?.ForSale ?? false)
+                    if (world[x, y]?.IsPlaza ?? false)
                     {
-                        Console.Write($" -> {world[x, y].SalesPrice}".PadRight(8));
+                        Console.Write("PLAZA".PadRight(16));
                     }
                     else
                     {
-                        Console.Write("\t");
-                    }
+                        if (world[x, y]?.ForSale ?? false)
+                        {
+                            Console.Write($" {world[x, y].SalesPrice}".PadRight(8));
+                        }
+                        else
+                        {
+                            Console.Write("\t");
+                        }
 
-                    if (world[x, y]?.RecentlySold ?? false)
-                    {
-                        Console.Write($" [{string.Join(',', world[x, y].RecentlySoldPrices)}]".PadRight(8));
-                    }
-                    else
-                    {
-                        Console.Write("\t");
+                        if (world[x, y]?.RecentlySold ?? false)
+                        {
+                            Console.Write($" [{string.Join(',', world[x, y].RecentlySoldPrices)}]".PadRight(8));
+                        }
+                        else
+                        {
+                            Console.Write("\t");
+                        }
                     }
 
                     Console.Write("\t|");
                 }
 
-                if (y < world.GetLength(1) - 1)
+                if (y < stopY - 1)
                 {
                     drawHorizontalLine();
                 }
@@ -81,23 +113,15 @@ namespace sales_lookup
             {
                 Console.WriteLine();
                 Console.Write("|");
-                Console.Write(string.Concat(Enumerable.Repeat("-", ((stopX - startX) * 24) - 1)));
+                Console.Write(string.Concat(Enumerable.Repeat("-", ((stopX - startX) * 32) - 1)));
                 Console.WriteLine("|");
             }
         }
 
-        private static Land GetLandInfo(int x, int y)
+        private static void GetLandInfo(Land land)
         {
-            var land = new Land
-            {
-                X = x,
-                Y = y
-            };
-
             GetCnftInfo(land);
             GetCnftAnalyticsInfo(land);
-
-            return land;
         }
 
         private static void GetCnftAnalyticsInfo(Land land)

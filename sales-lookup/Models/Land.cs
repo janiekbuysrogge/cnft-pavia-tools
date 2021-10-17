@@ -17,6 +17,7 @@ namespace sales_lookup.Models
         public bool RecentlySold => RecentlySoldPrices.Count > 0;
 
         public List<decimal> RecentlySoldPrices { get; set; }
+        public bool IsPlaza { get; internal set; }
 
         public Land()
         {
