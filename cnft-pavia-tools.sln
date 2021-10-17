@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cnft-pavia-tools", "cnft-pavia-tools\cnft-pavia-tools.csproj", "{B1A25B21-F8FF-4DBE-83CA-1B23621EF725}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cnft-pavia-tools", "cnft-pavia-tools\cnft-pavia-tools.csproj", "{B1A25B21-F8FF-4DBE-83CA-1B23621EF725}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sales-lookup", "sales-lookup\sales-lookup.csproj", "{7523A7ED-5310-4BE1-8A23-D025FDC07E0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sales-lookup", "sales-lookup\sales-lookup.csproj", "{7523A7ED-5310-4BE1-8A23-D025FDC07E0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sales-form", "sales-form\sales-form.csproj", "{4A6B8817-1F54-4C59-93D2-4A56105A5294}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7523A7ED-5310-4BE1-8A23-D025FDC07E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7523A7ED-5310-4BE1-8A23-D025FDC07E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7523A7ED-5310-4BE1-8A23-D025FDC07E0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A6B8817-1F54-4C59-93D2-4A56105A5294}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A6B8817-1F54-4C59-93D2-4A56105A5294}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A6B8817-1F54-4C59-93D2-4A56105A5294}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A6B8817-1F54-4C59-93D2-4A56105A5294}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

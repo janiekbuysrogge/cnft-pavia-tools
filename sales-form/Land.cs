@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
-namespace sales_lookup.Models
+namespace sales_form
 {
     public class Land
     {
@@ -13,15 +11,6 @@ namespace sales_lookup.Models
         public bool ForSale { get; set; }
 
         public decimal SalesPrice { get; set; }
-
-        public bool RecentlySold => RecentlySoldPrices.Count > 0;
-
-        public List<decimal> RecentlySoldPrices { get; set; }
-
-        public Land()
-        {
-            RecentlySoldPrices = new List<decimal>();
-        }
 
         public override string ToString()
         {
