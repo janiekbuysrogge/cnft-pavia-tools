@@ -51,5 +51,15 @@ namespace sales_lookup.Models
 
             return (x, y);
         }
+
+        public int GetXCoordinate(int x)
+        {
+            return x - 115;
+        }
+
+        public int GetYCoordinate(int y)
+        {
+            return 84 - y;
+        }
     }
 }

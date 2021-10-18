@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
 using RestSharp;
 using sales_lookup.Models;
 using sales_lookup.Models.CNFT.io;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace sales_lookup
 {
@@ -14,20 +17,14 @@ namespace sales_lookup
     {
         static void Main(string[] args)
         {
+            int centerX = AskForInt("X");
+            int centerY = AskForInt("Y");
+            int radius = AskForInt("radius");
+
             Console.WriteLine("Getting prices");
             Console.WriteLine();
 
             World world = new World();
-
-            // center piece + radius
-            int centerX = 16;
-            int centerY = 14;
-            int radius = 4;
-
-            //int centerX = 12;
-            //int centerY = 20;
-            //int radius = 2;
-
             var coords = world.GetCoordinates(centerX, centerY);
 
             ProcessWorld(world.Lands,
@@ -36,15 +33,31 @@ namespace sales_lookup
                 coords.Y - (radius / 2),
                 coords.Y + (radius / 2) + 1);
 
-            PrintWorld(world.Lands,
-                coords.X - (radius / 2), 
-                coords.X + (radius / 2) + 1, 
-                coords.Y - (radius / 2), 
+            PrintWorld(world,
+                coords.X - (radius / 2),
+                coords.X + (radius / 2) + 1,
+                coords.Y - (radius / 2),
                 coords.Y + (radius / 2) + 1);
 
             Console.WriteLine();
             Console.WriteLine("Done");
             Console.ReadLine();
+        }
+
+        private static int AskForInt(string v)
+        {
+            int value = 0;
+            while(true)
+            {
+                Console.Write($"Enter {v}: ");
+                if (int.TryParse(Console.ReadLine(), out int result))
+                {
+                    value = result;
+                    break;
+                }
+            }
+
+            return value;
         }
 
         private static void ProcessWorld(Land[,] world, int startX, int stopX, int startY, int stopY)
@@ -58,64 +71,62 @@ namespace sales_lookup
                 }
             }
 
-            //Parallel.ForEach(lands, land => GetLandInfo(land));
+            Parallel.ForEach(lands, land => GetLandInfo(land));
         }
 
-        private static void PrintWorld(Land[,] world, int startX, int stopX, int startY, int stopY)
+        private static void PrintWorld(World world, int startX, int stopX, int startY, int stopY)
         {
-            drawHorizontalLine();
+            Table table = new Table();
 
-            for (int y = startY; y < world.GetLength(1) && y < stopY; y++)
+            table.AddColumn("");
+            for (int x = startX; x < world.Lands.GetLength(0) && x < stopX; x++)
             {
-                Console.Write("|");
+                table.AddColumn(world.GetXCoordinate(x).ToString());
+            }
 
-                for (int x = startX; x < world.GetLength(0) && x < stopX; x++)
+            for (int y = startY; y < world.Lands.GetLength(1) && y < stopY; y++)
+            {
+                var rowCellData = new List<IRenderable>();
+                rowCellData.Add(new Markup(world.GetYCoordinate(y).ToString()));
+
+                for (int x = startX; x < world.Lands.GetLength(0) && x < stopX; x++)
                 {
-                    Console.Write($" {world[x, y].X} {world[x, y].Y}".PadRight(8));
-
-                    if (world[x, y]?.IsPlaza ?? false)
+                    if (world.Lands[x, y]?.IsPlaza ?? false)
                     {
-                        Console.Write("PLAZA".PadRight(16));
+                        rowCellData.Add(new Panel("PLAZA"));
                     }
                     else
                     {
-                        if (world[x, y]?.ForSale ?? false)
+                        var sb = new StringBuilder();
+                        if (world.Lands[x, y]?.ForSale ?? false)
                         {
-                            Console.Write($" {world[x, y].SalesPrice}".PadRight(8));
-                        }
-                        else
-                        {
-                            Console.Write("\t");
+                            sb.AppendLine($"[green]{world.Lands[x, y].SalesPrice}[/]");
                         }
 
-                        if (world[x, y]?.RecentlySold ?? false)
+                        if (world.Lands[x, y]?.RecentlySold ?? false)
+                        {                            
+                            foreach(var rsp in world.Lands[x, y].RecentlySoldPrices)
+                            {
+                                sb.AppendLine($"[red]{rsp.ToString()}[/]");
+                            }                            
+                        }
+
+                        if (sb.Length > 0)
                         {
-                            Console.Write($" [{string.Join(',', world[x, y].RecentlySoldPrices)}]".PadRight(8));
+                            rowCellData.Add(new Panel(sb.ToString()));
                         }
                         else
                         {
-                            Console.Write("\t");
+                            rowCellData.Add(new Markup(""));
                         }
                     }
-
-                    Console.Write("\t|");
                 }
 
-                if (y < stopY - 1)
-                {
-                    drawHorizontalLine();
-                }
+                table.AddRow(rowCellData);
+                table.AddEmptyRow();
             }
 
-            drawHorizontalLine();
-
-            void drawHorizontalLine()
-            {
-                Console.WriteLine();
-                Console.Write("|");
-                Console.Write(string.Concat(Enumerable.Repeat("-", ((stopX - startX) * 32) - 1)));
-                Console.WriteLine("|");
-            }
+            AnsiConsole.Write(table);
         }
 
         private static void GetLandInfo(Land land)
@@ -142,7 +153,6 @@ namespace sales_lookup
 
             if (!string.IsNullOrEmpty(response.Content))
             {
-                //Console.WriteLine(response.Content);
                 var content = response.Content;
 
                 // fix closing tag
